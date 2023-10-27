@@ -2,20 +2,26 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getPostById } from "../../api";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
-import { BLOCKS, MARKS } from "@contentful/rich-text-types";
+import { BLOCKS } from "@contentful/rich-text-types";
+import Article from "../../components/article";
+import { Spinner } from "../../components/spinner";
 
 function Post() {
   const [article, setArticle] = useState<any>({});
   const [notFound, setNotFound] = useState(false);
+  const [loading, setLoading] = useState(false);
   const params = useParams();
 
   useEffect(() => {
     async function fetchArticle() {
+      setLoading(true);
       try {
         const { data } = await getPostById(params.id!);
         console.log(data, "data");
         setArticle(data);
+        setLoading(false);
       } catch (e) {
+        setLoading(false);
         setNotFound(true);
       }
     }
@@ -43,25 +49,15 @@ function Post() {
   };
 
   let html: any = documentToReactComponents(article.description, options);
-  
+
   return (
     <div className="min-h-screen bg-dark text-slate-100">
-      {notFound ? (
-        <div className="w-full text-center pt-10">
-          <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl xl:text-6xl font-bold text-center">
-            Post was not found {":("}
-          </h1>
+      {loading ? (
+        <div className="flex justify-center items-center w-full h-full fixed top-0 left-0">
+          <Spinner />
         </div>
       ) : (
-        <section className="p-10">
-          <div className="flex justify-center w-1/2 mx-auto">
-            <img src={article.image} />
-          </div>
-          <h1 className="text-2xl mt-10 xs:text-3xl sm:text-4xl md:text-5xl xl:text-6xl font-bold text-center">
-            {article.title}
-          </h1>
-          <article className="mx-auto max-w-4xl mt-8">{html}</article>
-        </section>
+        <Article notFound={notFound} article={article} html={html} />
       )}
     </div>
   );
