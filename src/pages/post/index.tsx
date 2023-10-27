@@ -43,8 +43,7 @@ function Post() {
   };
 
   let html: any = documentToReactComponents(article.description, options);
-  console.log(html, "html");
-
+  
   return (
     <div className="min-h-screen bg-dark text-slate-100">
       {notFound ? (
